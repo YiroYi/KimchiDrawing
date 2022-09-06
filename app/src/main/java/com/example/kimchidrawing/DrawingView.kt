@@ -1,13 +1,11 @@
 package com.example.kimchidrawing
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
-import java.nio.file.Path
 
 class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
   private var mDrawPath : CustomPath? = null
@@ -34,7 +32,59 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
       mBrushSize = 20.toFloat()
   }
 
-  internal inner class CustomPath(var color: Int, var brushThickness: Float): Path() {
+  override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+    super.onSizeChanged(w, h, oldw, oldh)
+    mCanvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+    canvas = Canvas(mCanvasBitmap!!) // We use !! when the initial variable is not null
 
+  } // This view is inherited from View class so we are overriding the
+    // original onSizeChanged function
+
+  override fun onDraw(canvas: Canvas) {
+    super.onDraw(canvas)
+    canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)
+    if (!mDrawPath!!.isEmpty) {
+      mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
+      mDrawPaint!!.color = mDrawPath!!.color
+      canvas.drawPath(mDrawPath!!, mDrawPaint!!)
+    }
   }
+
+  override fun onTouchEvent(event: MotionEvent?): Boolean {
+    val touchX = event?.x
+    val touchY = event?.y
+
+    when(event?.action) {
+      MotionEvent.ACTION_DOWN -> {
+        mDrawPath!!.color = color
+        mDrawPath!!.brushThickness = mBrushSize
+
+        mDrawPath!!.reset()
+        if(touchX != null) {
+          if (touchY != null) {
+            mDrawPath!!.moveTo(touchX, touchY)
+          }
+        }
+      }
+
+      MotionEvent.ACTION_MOVE -> {
+        if(touchX != null) {
+          if (touchY != null) {
+            mDrawPath!!.lineTo(touchX, touchY)
+          }
+        }
+      }
+
+      MotionEvent.ACTION_UP -> {
+        mDrawPath = CustomPath(color, mBrushSize)
+      }
+
+      else -> return false
+    }
+
+    invalidate()
+    return true
+  }
+
+  internal inner class CustomPath(var color:Int,var brushThickness:Float):Path()
 }
