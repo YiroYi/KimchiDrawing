@@ -16,6 +16,7 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
   private var color = Color.BLACK
 
   private var canvas: Canvas? = null
+  private val mPaths = ArrayList<CustomPath>()
 
   init {
     setupDrawing()
@@ -29,7 +30,6 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
       mDrawPaint!!.strokeJoin = Paint.Join.ROUND
       mDrawPaint!!.strokeCap = Paint.Cap.ROUND
       mCanvasPaint = Paint(Paint.DITHER_FLAG)
-      mBrushSize = 20.toFloat()
   }
 
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -41,8 +41,16 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
     // original onSizeChanged function
 
   override fun onDraw(canvas: Canvas) {
+
     super.onDraw(canvas)
     canvas.drawBitmap(mCanvasBitmap!!, 0f, 0f, mCanvasPaint)
+
+    for(path in mPaths) {
+      mDrawPaint!!.strokeWidth = path.brushThickness
+      mDrawPaint!!.color = path.color
+      canvas.drawPath(path, mDrawPaint!!)
+    }
+
     if (!mDrawPath!!.isEmpty) {
       mDrawPaint!!.strokeWidth = mDrawPath!!.brushThickness
       mDrawPaint!!.color = mDrawPath!!.color
@@ -76,6 +84,7 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
       }
 
       MotionEvent.ACTION_UP -> {
+        mPaths.add(mDrawPath!!)
         mDrawPath = CustomPath(color, mBrushSize)
       }
 
@@ -84,6 +93,19 @@ class DrawingView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
     invalidate()
     return true
+  }
+
+  fun setSizeForBrush(newSize : Float) {
+    mBrushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+      newSize, resources.displayMetrics
+      )
+
+    mDrawPaint!!.strokeWidth = mBrushSize
+  }
+
+  fun setColor(newColor: String) {
+    color = Color.parseColor(newColor)
+    mDrawPaint!!.color = color
   }
 
   internal inner class CustomPath(var color:Int,var brushThickness:Float):Path()
