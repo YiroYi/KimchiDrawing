@@ -4,6 +4,10 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -75,6 +79,11 @@ class MainActivity : AppCompatActivity() {
     mImageButtonCurrentPaint!!.setImageDrawable(
       ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
     )
+
+    var ib_save : ImageButton = findViewById(R.id.ib_save)
+    ib_save.setOnClickListener{
+
+    }
 
     var ib_undo : ImageButton = findViewById(R.id.ib_undo)
     ib_undo.setOnClickListener{
@@ -149,6 +158,33 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.READ_EXTERNAL_STORAGE
       ))
     }
+  }
+
+  private fun isReadStorageAllowed() : Boolean {
+    val result = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+    return result == PackageManager.PERMISSION_GRANTED
+  }
+
+  private fun getBitmapFromView(view: View) : Bitmap {
+    val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+
+    val canvas = Canvas(returnedBitmap)
+    val bgDrawable = view.background
+    if(bgDrawable != null) {
+      bgDrawable.draw(canvas)
+    }else {
+      canvas.drawColor(Color.WHITE)
+    }
+
+    view.draw(canvas)
+
+    return returnedBitmap
+  }
+
+  companion object {
+    private const val STORAGE_PERMISSION_CODE = 1
+    private const val GALLERY = 2
   }
 
   private fun showRationalDialog(title: String, message: String) {
