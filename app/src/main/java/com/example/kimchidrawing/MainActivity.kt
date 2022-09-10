@@ -76,6 +76,11 @@ class MainActivity : AppCompatActivity() {
       ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
     )
 
+    var ib_undo : ImageButton = findViewById(R.id.ib_undo)
+    ib_undo.setOnClickListener{
+      drawingView?.onClickUndo()
+    }
+
     var ib_brush : ImageButton = findViewById(R.id.ib_brush)
     ib_brush.setOnClickListener{
       showBrushSizeChooserDialog()
