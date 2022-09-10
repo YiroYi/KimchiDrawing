@@ -28,15 +28,13 @@
             </intent-filter>
         </activity>
         <provider
-            android:authorities="com.example.kimchidrawing.fileprovider"
             android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.kimchidrawing.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            >
+            android:grantUriPermissions="true">
             <meta-data
-                android:name="android.support.FILE_PROVIDERS_PATHS"
-                android:resource="@xml/path"
-                />
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/path" />
         </provider>
     </application>
 </manifest>
